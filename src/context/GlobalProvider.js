@@ -1,0 +1,57 @@
+import React, {createContext, useReducer} from "react";
+import AppReducer from "./AppReducer";
+
+const initialState = {
+  username: "",
+  password: "",
+  resencoded:
+    "eyJzZXNzaW9uX2tleSI6ICJrOHRneW9uaWtuYW9sZzB3Z2luOGoyOXk4aDA5MzcwYiIsICJqd3QiOiAiZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnBaQ0k2TVgwLmJkZlc4QjZsRzdSaFBtSEN0TzZyUGdmM0lZbER3QUpjN0xVS3RmVEUyZVUiLCAiZmlyc3RfdGltZSI6IDAsICJyb2xlIjogImFkbWluIiwgImJhc2ljX2luZm8iOiB7ImZpcnN0X25hbWUiOiAiU2F0d2lrIiwgIm1pZGRsZV9uYW1lIjogIiIsICJsYXN0X25hbWUiOiAiTWlzaHJhIiwgIm1vYmlsZV9ubyI6ICI5NjIxNTI1MDg4IiwgIndoYXRzYXBwX25vIjogIjk2MjE1MjUwODgiLCAiY2xpbmljX25hbWUiOiAiIiwgImNsaW5pY19sb2dvIjogIiJ9LCAidXNlcl9pZCI6IDEsICJSb2xlX2RldGFpbHMiOiBbeyJSb2xlX2lkIjogMSwgIlJvbGVfTmFtZSI6ICJTdXBlciBBZG1pbiIsICJSb2xlX0Rlc2NyaXB0aW9uIjogIiIsICJSb2xlX0xldmVsIjogMiwgIkVuZF9Vc2VyIjogMCwgIlJvbGVfYWNjZXNzIjogeyJPcmdhbml6YXRpb24iOiB7Ikxpc3QiOiAxLCAiVXBkYXRlIjogMSwgIkNyZWF0ZSI6IDEsICJBY3RpdmF0ZSI6IDEsICJJbkFjdGl2YXRlIjogMX0sICJDZW50ZXIiOiB7Ikxpc3QiOiAxLCAiVXBkYXRlIjogMSwgIkNyZWF0ZSI6IDEsICJBY3RpdmF0ZSI6IDEsICJJbkFjdGl2YXRlIjogMSwgIkRldGFpbHMiOiAxfSwgIlJvbGUgQWNlc3MiOiB7Ikxpc3QiOiAxLCAiVXBkYXRlIjogMSwgIkNyZWF0ZSI6IDEsICJBY3RpdmF0ZSI6IDEsICJJbkFjdGl2YXRlIjogMX0sICJFbXBsb3llZSI6IHsiTGlzdCI6IDEsICJVcGRhdGUiOiAxLCAiQ3JlYXRlIjogMSwgIlBhc3N3b3JkIFJlc2V0IjogMSwgIkFjdGl2YXRlIjogMSwgIkluQWN0aXZhdGUiOiAxfSwgIkVuZCBVc2VyIjogeyJMaXN0IjogMSwgIldvcmtCZW5jaCI6IDEsICJVcGRhdGUiOiAxLCAiQ3JlYXRlIjogMSwgIlBhc3N3b3JkIFJlc2V0IjogMSwgIkFjdGl2YXRlIjogMSwgIkluQWN0aXZhdGUiOiAxfSwgIkVwaXNvZGUiOiB7Ik9wZW4gTGlzdCI6IDEsICJDbG9zZWQgTGlzdCI6IDEsICJVcGRhdGUiOiAxLCAiQ3JlYXRlIjogMSwgIkFjdGl2YXRlIjogMSwgIkluQWN0aXZhdGUiOiAxfSwgIlZpc2l0IjogeyJMaXN0IjogMSwgIlVwZGF0ZSI6IDEsICJDcmVhdGUiOiAxLCAiVmlkZW8gQ29uZmVyZW5jZSI6IDF9LCAiQXNzZXNzbWVudCI6IHsiTGlzdCI6IDEsICJDcmVhdGUiOiAxLCAiVXBkYXRlIjogMSwgIlJlcG9ydCI6IDF9LCAiQ2FyZXBsYW4iOiB7Ikxpc3QiOiAxLCAiQ3JlYXRlIjogMSwgIlVwZGF0ZSI6IDEsICJSZXBvcnQiOiAxLCAiVGVtcGxhdGUgTGlzdCI6IDEsICJUZW1wbGF0ZSBDcmVhdGlvbiI6IDEsICJBSSI6IDEsICJEYXNoYm9hcmQiOiAxfSwgIkludm9pY2UiOiB7Ikxpc3QiOiAxLCAiQ3JlZGl0IE1lbW8iOiAxLCAiUmVwb3J0IjogMSwgIkNyZWF0ZSI6IDEsICJEaXNjb3VudCI6IDEsICJSZWNpZXB0IExpc3QiOiAxLCAiUmVjaWVwdCBSZWZ1bmQiOiAxLCAiUmVjaWVwdCBDcmVhdGlvbiI6IDF9LCAiUHJlc2NyaXB0aW9uIjogeyJMaXN0IjogMSwgIkNyZWF0ZSI6IDEsICJVcGRhdGUiOiAxfSwgIk5vdGVzIjogeyJMaXN0IjogMSwgIkNyZWF0ZSI6IDF9fSwgInN0YXR1c19mbGFnIjogMSwgIkNyZWF0ZWRfYnkiOiA1MjMsICJVcGRhdGVkX2J5IjogNTIzfV0sICJlcnJvciI6IDAsICJtZXNzYWdlIjogImFkbWluIGxvZ2luIHN1Y2Nlc3NmdWxseSJ9",
+  user: null,
+};
+
+export const GlobalContext = createContext(initialState)
+
+const GlobalProvider = ({children}) => {
+//     const [username, setUsername] = useState("");
+//     const [password, setPassword] = useState("");
+    // const [resencoded, setResencoded] = useState(
+    //   "eyJzZXNzaW9uX2tleSI6ICJrOHRneW9uaWtuYW9sZzB3Z2luOGoyOXk4aDA5MzcwYiIsICJqd3QiOiAiZXlKMGVYQWlPaUpLVjFRaUxDSmhiR2NpT2lKSVV6STFOaUo5LmV5SnBaQ0k2TVgwLmJkZlc4QjZsRzdSaFBtSEN0TzZyUGdmM0lZbER3QUpjN0xVS3RmVEUyZVUiLCAiZmlyc3RfdGltZSI6IDAsICJyb2xlIjogImFkbWluIiwgImJhc2ljX2luZm8iOiB7ImZpcnN0X25hbWUiOiAiU2F0d2lrIiwgIm1pZGRsZV9uYW1lIjogIiIsICJsYXN0X25hbWUiOiAiTWlzaHJhIiwgIm1vYmlsZV9ubyI6ICI5NjIxNTI1MDg4IiwgIndoYXRzYXBwX25vIjogIjk2MjE1MjUwODgiLCAiY2xpbmljX25hbWUiOiAiIiwgImNsaW5pY19sb2dvIjogIiJ9LCAidXNlcl9pZCI6IDEsICJSb2xlX2RldGFpbHMiOiBbeyJSb2xlX2lkIjogMSwgIlJvbGVfTmFtZSI6ICJTdXBlciBBZG1pbiIsICJSb2xlX0Rlc2NyaXB0aW9uIjogIiIsICJSb2xlX0xldmVsIjogMiwgIkVuZF9Vc2VyIjogMCwgIlJvbGVfYWNjZXNzIjogeyJPcmdhbml6YXRpb24iOiB7Ikxpc3QiOiAxLCAiVXBkYXRlIjogMSwgIkNyZWF0ZSI6IDEsICJBY3RpdmF0ZSI6IDEsICJJbkFjdGl2YXRlIjogMX0sICJDZW50ZXIiOiB7Ikxpc3QiOiAxLCAiVXBkYXRlIjogMSwgIkNyZWF0ZSI6IDEsICJBY3RpdmF0ZSI6IDEsICJJbkFjdGl2YXRlIjogMSwgIkRldGFpbHMiOiAxfSwgIlJvbGUgQWNlc3MiOiB7Ikxpc3QiOiAxLCAiVXBkYXRlIjogMSwgIkNyZWF0ZSI6IDEsICJBY3RpdmF0ZSI6IDEsICJJbkFjdGl2YXRlIjogMX0sICJFbXBsb3llZSI6IHsiTGlzdCI6IDEsICJVcGRhdGUiOiAxLCAiQ3JlYXRlIjogMSwgIlBhc3N3b3JkIFJlc2V0IjogMSwgIkFjdGl2YXRlIjogMSwgIkluQWN0aXZhdGUiOiAxfSwgIkVuZCBVc2VyIjogeyJMaXN0IjogMSwgIldvcmtCZW5jaCI6IDEsICJVcGRhdGUiOiAxLCAiQ3JlYXRlIjogMSwgIlBhc3N3b3JkIFJlc2V0IjogMSwgIkFjdGl2YXRlIjogMSwgIkluQWN0aXZhdGUiOiAxfSwgIkVwaXNvZGUiOiB7Ik9wZW4gTGlzdCI6IDEsICJDbG9zZWQgTGlzdCI6IDEsICJVcGRhdGUiOiAxLCAiQ3JlYXRlIjogMSwgIkFjdGl2YXRlIjogMSwgIkluQWN0aXZhdGUiOiAxfSwgIlZpc2l0IjogeyJMaXN0IjogMSwgIlVwZGF0ZSI6IDEsICJDcmVhdGUiOiAxLCAiVmlkZW8gQ29uZmVyZW5jZSI6IDF9LCAiQXNzZXNzbWVudCI6IHsiTGlzdCI6IDEsICJDcmVhdGUiOiAxLCAiVXBkYXRlIjogMSwgIlJlcG9ydCI6IDF9LCAiQ2FyZXBsYW4iOiB7Ikxpc3QiOiAxLCAiQ3JlYXRlIjogMSwgIlVwZGF0ZSI6IDEsICJSZXBvcnQiOiAxLCAiVGVtcGxhdGUgTGlzdCI6IDEsICJUZW1wbGF0ZSBDcmVhdGlvbiI6IDEsICJBSSI6IDEsICJEYXNoYm9hcmQiOiAxfSwgIkludm9pY2UiOiB7Ikxpc3QiOiAxLCAiQ3JlZGl0IE1lbW8iOiAxLCAiUmVwb3J0IjogMSwgIkNyZWF0ZSI6IDEsICJEaXNjb3VudCI6IDEsICJSZWNpZXB0IExpc3QiOiAxLCAiUmVjaWVwdCBSZWZ1bmQiOiAxLCAiUmVjaWVwdCBDcmVhdGlvbiI6IDF9LCAiUHJlc2NyaXB0aW9uIjogeyJMaXN0IjogMSwgIkNyZWF0ZSI6IDEsICJVcGRhdGUiOiAxfSwgIk5vdGVzIjogeyJMaXN0IjogMSwgIkNyZWF0ZSI6IDF9fSwgInN0YXR1c19mbGFnIjogMSwgIkNyZWF0ZWRfYnkiOiA1MjMsICJVcGRhdGVkX2J5IjogNTIzfV0sICJlcnJvciI6IDAsICJtZXNzYWdlIjogImFkbWluIGxvZ2luIHN1Y2Nlc3NmdWxseSJ9"
+    // );
+    const [state, dispatch] = useReducer(AppReducer, initialState)
+
+    function setUsername(username){
+        dispatch({
+            type: "SET_USERNAME",
+            payload: username
+        })
+    }
+    function setPassword(password){
+        dispatch({
+            type: "SET_PASSWORD",
+            payload: password
+        })
+    }
+    function setUser(user){
+        dispatch({
+            type: "SET_USER",
+            payload: user
+        })
+    }
+
+    return (
+      <GlobalContext.Provider
+        value={{
+          username: state.username,
+          setUsername,
+          password: state.password,
+          setPassword,
+          resencoded: state.resencoded,
+          setUser
+        }}
+      >
+        {children}
+      </GlobalContext.Provider>
+    );
+}
+
+export default GlobalProvider
