@@ -7,14 +7,9 @@ axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const Login = () => {
-    const navigate = useNavigate();
-  const {
-    username,
-    setUsername,
-    password,
-    setPassword,
-    setUser
-  } = useContext(GlobalContext);
+  const navigate = useNavigate();
+  const { username, setUsername, password, setPassword, setUser } =
+    useContext(GlobalContext);
 
   const jsonObject = {
     uid: `${username}`,
@@ -26,15 +21,17 @@ const Login = () => {
   const url =
     "https://cors-anywhere.herokuapp.com/https://myphysio.digitaldarwin.in/api/login_v1/";
 
+  // Localhost was blocked by CORS Policy, so had to add "https://cors-anywhere.herokuapp.com/" to the original url and had to request the temporary access to the demo server from "https://cors-anywhere.herokuapp.com/corsdemo" to run the app.
+
   const getData = async (url, payload) => {
     try {
       const response = await axios.post(url, {
         payload: `${payload}`,
       });
-        const decodedString = atob(response.data.response);
-        setUser(JSON.parse(decodedString).session_key)
-        localStorage.setItem("response", decodedString);
-        navigate("/");
+      const decodedString = atob(response.data.response);
+      setUser(JSON.parse(decodedString).session_key);
+      localStorage.setItem("response", decodedString);
+      navigate("/");
     } catch (error) {
       console.log(error.message);
       alert("Login Error");
